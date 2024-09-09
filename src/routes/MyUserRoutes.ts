@@ -16,9 +16,9 @@ router.post("/",jwtCheck, MyUserController.createCurrentUser);
 //EndPoint to update the user
 router.put(
   "/",
+  validateMyUserRequest,
   jwtCheck,
   jwtParse,
-  validateMyUserRequest,
   MyUserController.updateCurrentUser
 ); 
 

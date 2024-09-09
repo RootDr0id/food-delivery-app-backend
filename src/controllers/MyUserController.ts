@@ -51,7 +51,6 @@ const updateCurrentUser = async (req: Request, res: Response) => {
     user.country = country;
 
     await user.save(); //saves the user to the db
-
     res.send(user); // send the user to the calling client if it needs it.
     //In our case it'll be useful for testing with our rest api (postman/insomnia) before implementing it in the frontend
   } catch (error) {
