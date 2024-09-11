@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Restaurant from "../models/restaurant";
 import cloudinary from "cloudinary";
 import mongoose from "mongoose";
-//import Order from "../models/order";
+import Order from "../models/order";
 
 const getMyRestaurant = async (req: Request, res: Response) => {
   try {
@@ -74,7 +74,7 @@ const updateMyRestaurant = async (req: Request, res: Response) => {
   }
 };
 
-/* const getMyRestaurantOrders = async (req: Request, res: Response) => {
+const getMyRestaurantOrders = async (req: Request, res: Response) => {// gets all orders to a given restaurant to its owner
   try {
     const restaurant = await Restaurant.findOne({ user: req.userId });
     if (!restaurant) {
@@ -90,12 +90,12 @@ const updateMyRestaurant = async (req: Request, res: Response) => {
     console.log(error);
     res.status(500).json({ message: "something went wrong" });
   }
-}; */
+};
 
-/* const updateOrderStatus = async (req: Request, res: Response) => {
+const updateOrderStatus = async (req: Request, res: Response) => {
   try {
-    const { orderId } = req.params;
-    const { status } = req.body;
+    const { orderId } = req.params;// get the order id from the url
+    const { status } = req.body;// get the status from the body of the request , new status.
 
     const order = await Order.findById(orderId);
     if (!order) {
@@ -103,7 +103,7 @@ const updateMyRestaurant = async (req: Request, res: Response) => {
     }
 
     const restaurant = await Restaurant.findById(order.restaurant);
-
+    //just extra security to prevent unauthorized users from updating orders from other user's restaaurants.
     if (restaurant?.user?._id.toString() !== req.userId) {
       return res.status(401).send();
     }
@@ -117,7 +117,7 @@ const updateMyRestaurant = async (req: Request, res: Response) => {
     res.status(500).json({ message: "unable to update order status" });
   }
 };
- */
+
 
 const uploadImage = async (file: Express.Multer.File) => {
   const image = file;
@@ -129,8 +129,8 @@ const uploadImage = async (file: Express.Multer.File) => {
 };
 
 export default {
-  //updateOrderStatus,
-  //getMyRestaurantOrders,
+  updateOrderStatus,
+  getMyRestaurantOrders,
   getMyRestaurant,
   createMyRestaurant,
   updateMyRestaurant,

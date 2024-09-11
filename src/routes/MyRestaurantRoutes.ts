@@ -19,14 +19,14 @@ router.get(
   "/order",
   jwtCheck,
   jwtParse,
- // MyRestaurantController.getMyRestaurantOrders
+  MyRestaurantController.getMyRestaurantOrders
 );
 
-router.patch(
+router.patch(// update order status, patch instead of put because it is a partial update
   "/order/:orderId/status",
   jwtCheck,
   jwtParse,
- // MyRestaurantController.updateOrderStatus
+  MyRestaurantController.updateOrderStatus
 );
 
 router.get("/", jwtCheck, jwtParse, MyRestaurantController.getMyRestaurant);
