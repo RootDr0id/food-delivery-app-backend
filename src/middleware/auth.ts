@@ -12,17 +12,20 @@ declare global {
     }
   }
 }
-
-// function that checks the autherization header for the bearer token
-// which is sent by the frontend in myuserapi.tsx
-// it connects to the auth0 server and checks if the token in the request belongs to a loged in user
+/**
+ *Method that checks the authorization header for the bearer token
+ *which is sent by the frontend in myuserapi.tsx
+ *it connects to the auth0 server and checks if the token in the request belongs to a loged in user
+ */
 export const jwtCheck = auth({
   audience: process.env.AUTH0_AUDIENCE,
   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
   tokenSigningAlg: "RS256",
 });
 
-// To parse the token to get our id
+/**
+ * To parse the token to get our id
+  */ 
 export const jwtParse = async (
   req: Request,
   res: Response,

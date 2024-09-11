@@ -7,6 +7,15 @@ const STRIPE = new Stripe(process.env.STRIPE_API_KEY as string);
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const STRIPE_ENDPOINT_SECRET = process.env.STRIPE_WEBHOOK_SECRET as string;
 
+/**
+ * Retrieves all orders for the current user.
+ *
+ * The response will contain an array of order objects, each with their
+ * respective restaurant and user populated.
+ *
+ * If any error occurs, a 500 status will be returned with a message
+ * "something went wrong".
+ */
 const getMyOrders = async (req: Request, res: Response) => {
   try {
     const orders = await Order.find({ user: req.userId })
@@ -35,6 +44,14 @@ type CheckoutSessionRequest = {
   restaurantId: string;
 };
 
+/**
+ * Handles incoming Stripe webhook events.
+ * When a checkout session is completed, updates the corresponding order in the database.
+ * Responds with a 200 status to Stripe.
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ */
 const stripeWebhookHandler = async (req: Request, res: Response) => {
  
   let event;
@@ -67,6 +84,13 @@ const stripeWebhookHandler = async (req: Request, res: Response) => {
   res.status(200).send();
 };
 
+/**
+ * Creates a Stripe checkout session and saves the order to the database.
+ * @param {Request} req - Request object containing the checkout session request in the body.
+ * @param {Response} res - Response object.
+ * @returns {Promise<void>}
+ * @throws {Error} If the restaurant is not found or there is an error creating the stripe session.
+ */
 const createCheckoutSession = async (req: Request, res: Response) => {
   try {
     const checkoutSessionRequest: CheckoutSessionRequest = req.body;
@@ -112,6 +136,12 @@ const createCheckoutSession = async (req: Request, res: Response) => {
   }
 };
 
+  /**
+   * Creates an array of Stripe Checkout session line items from the given cart items and menu items.
+   * @param {CheckoutSessionRequest} checkoutSessionRequest The request to create a checkout session.
+   * @param {MenuItemType[]} menuItems The list of menu items for the restaurant.
+   * @returns {Stripe.Checkout.SessionCreateParams.LineItem[]} The list of line items for the checkout session.
+   */
 const createLineItems = (
   checkoutSessionRequest: CheckoutSessionRequest,
   menuItems: MenuItemType[]
@@ -141,6 +171,16 @@ const createLineItems = (
   return lineItems;
 };
 
+  /**
+   * Creates a Stripe Checkout session for the given line items and order details.
+   * The session is configured to use the "payment" mode and includes the order ID and restaurant ID as metadata.
+   * The session is also configured to redirect to the order status page on success or cancellation.
+   * @param {Stripe.Checkout.SessionCreateParams.LineItem[]} lineItems The list of line items for the checkout session.
+   * @param {string} orderId The ID of the order.
+   * @param {number} deliveryPrice The price of delivery.
+   * @param {string} restaurantId The ID of the restaurant.
+   * @returns {Promise<Stripe.Checkout.Session>} The created checkout session.
+   */
 const createSession = async (
   lineItems: Stripe.Checkout.SessionCreateParams.LineItem[],
   orderId: string,

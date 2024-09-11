@@ -1,6 +1,13 @@
 import { Request, Response } from "express";
 import User from "../models/user";
 
+/**
+ * Controller to get the current logged in user.
+ *
+ * If the user is found, it returns the user object in the response.
+ * If the user is not found, it returns a 404 status with a message "User not found".
+ * If any error occurs, it returns a 500 status with a message "Something went wrong".
+ */
  const getCurrentUser = async (req: Request, res: Response) => {
   try {
     const currentUser = await User.findOne({ _id: req.userId });
@@ -16,6 +23,12 @@ import User from "../models/user";
   }
 }; 
 
+  /**
+   * Creates a new user in the database using the user information provided in the
+   * request body. If the user already exists, it returns a 200 status with no content.
+   * If the user is created successfully, it returns a 201 status with the created user object.
+   * If any error occurs, it returns a 500 status with a message "Error creating user".
+   */
 const createCurrentUser = async (req: Request, res: Response) => {
   try {
     const { auth0Id } = req.body;
@@ -35,6 +48,12 @@ const createCurrentUser = async (req: Request, res: Response) => {
   }
 };
 
+  /**
+   * Updates the current user in the database with the user information provided in the
+   * request body. If the user is not found, it returns a 404 status with a message "User not found".
+   * If the user is updated successfully, it returns a 200 status with the updated user object.
+   * If any error occurs, it returns a 500 status with a message "Error updating user".
+   */
 const updateCurrentUser = async (req: Request, res: Response) => {
   try {
     const { name, addressLine1, country, city } = req.body; // data sent by the frontend form

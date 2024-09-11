@@ -1,6 +1,13 @@
 import { Request, Response } from "express";
 import Restaurant from "../models/restaurant";
 
+/**
+ * Gets a restaurant by its id.
+ * @param req - Express request object
+ * @param res - Express response object
+ * @throws 404 if restaurant is not found
+ * @throws 500 if there is an error getting the restaurant
+ */
 const getRestaurant = async (req: Request, res: Response) => {
   try {
     const restaurantId = req.params.restaurantId;
@@ -17,6 +24,18 @@ const getRestaurant = async (req: Request, res: Response) => {
   }
 };
 
+    /**
+     * Searches for restaurants in a given city based on the search query and selected cuisines.
+     * @param req - Express request object
+     * @param res - Express response object
+     * @param city - the city to search for restaurants in
+     * @param searchQuery - the search query
+     * @param selectedCuisines - the selected cuisines
+     * @param sortOption - the sort option
+     * @param page - the page number
+     * @throws 404 if the city does not have any restaurants
+     * @throws 500 if there is an error searching for restaurants
+     */
 const searchRestaurant = async (req: Request, res: Response) => {
   try {
     const city = req.params.city;//"london"

@@ -1,6 +1,15 @@
 import { body, validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 
+/**
+ * Handles validation errors by checking the result of express-validator's
+ * validationResult function. If there are any errors, it returns a 400 response
+ * with the errors in the response body. Otherwise, it calls the next function in
+ * the middleware chain.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next function in the middleware chain.
+ */
 const handleValidationErrors = async (
   req: Request,
   res: Response,
