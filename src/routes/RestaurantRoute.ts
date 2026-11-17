@@ -28,7 +28,6 @@ router.get(
     .isLength({ max: 100 })
     .withMessage("City must be a non-empty string of at most 100 characters"),
   validateRestaurantSearchRequest,
-  handleValidationErrors,
   RestaurantController.searchRestaurant
 );
 
