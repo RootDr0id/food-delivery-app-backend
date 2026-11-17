@@ -53,7 +53,6 @@ type CheckoutSessionRequest = {
  * @returns {Promise<void>}
  */
 const stripeWebhookHandler = async (req: Request, res: Response) => {
- 
   let event;
 
   try {
@@ -69,16 +68,21 @@ const stripeWebhookHandler = async (req: Request, res: Response) => {
   }
 
   if (event.type === "checkout.session.completed") {
-    const order = await Order.findById(event.data.object.metadata?.orderId);
+    try {
+      const order = await Order.findById(event.data.object.metadata?.orderId);
 
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      order.totalAmount = event.data.object.amount_total;
+      order.status = "paid";
+
+      await order.save();
+    } catch (error) {
+      console.log("Failed to process Stripe checkout webhook:", error);
+      return res.status(500).json({ message: "Unable to process webhook" });
     }
-
-    order.totalAmount = event.data.object.amount_total;
-    order.status = "paid";
-
-    await order.save();
   }
 
   res.status(200).send();
@@ -112,10 +116,10 @@ const createCheckoutSession = async (req: Request, res: Response) => {
       createdAt: new Date(),
     });
 
-    const lineItems = createLineItems(//creates line items for stripe from our cart items' array
+    const lineItems = createLineItems(
       checkoutSessionRequest,
       restaurant.menuItems
-    );//this will be the body of our request to stripe
+    );
 
     const session = await createSession(
       lineItems,
@@ -128,7 +132,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
       return res.status(500).json({ message: "Error creating stripe session" });
     }
 
-    await newOrder.save();//commit to db
+    await newOrder.save();
     res.json({ url: session.url });
   } catch (error: any) {
     console.log(error);
@@ -136,12 +140,12 @@ const createCheckoutSession = async (req: Request, res: Response) => {
   }
 };
 
-  /**
-   * Creates an array of Stripe Checkout session line items from the given cart items and menu items.
-   * @param {CheckoutSessionRequest} checkoutSessionRequest The request to create a checkout session.
-   * @param {MenuItemType[]} menuItems The list of menu items for the restaurant.
-   * @returns {Stripe.Checkout.SessionCreateParams.LineItem[]} The list of line items for the checkout session.
-   */
+/**
+ * Creates an array of Stripe Checkout session line items from the given cart items and menu items.
+ * @param {CheckoutSessionRequest} checkoutSessionRequest The request to create a checkout session.
+ * @param {MenuItemType[]} menuItems The list of menu items for the restaurant.
+ * @returns {Stripe.Checkout.SessionCreateParams.LineItem[]} The list of line items for the checkout session.
+ */
 const createLineItems = (
   checkoutSessionRequest: CheckoutSessionRequest,
   menuItems: MenuItemType[]
@@ -162,7 +166,7 @@ const createLineItems = (
     const line_item: Stripe.Checkout.SessionCreateParams.LineItem = {
       price_data: {
         currency: "dzd",
-        unit_amount: menuItem.price*100,
+        unit_amount: menuItem.price * 100,
         product_data: {
           name: menuItem.name,
         },
@@ -176,16 +180,16 @@ const createLineItems = (
   return lineItems;
 };
 
-  /**
-   * Creates a Stripe Checkout session for the given line items and order details.
-   * The session is configured to use the "payment" mode and includes the order ID and restaurant ID as metadata.
-   * The session is also configured to redirect to the order status page on success or cancellation.
-   * @param {Stripe.Checkout.SessionCreateParams.LineItem[]} lineItems The list of line items for the checkout session.
-   * @param {string} orderId The ID of the order.
-   * @param {number} deliveryPrice The price of delivery.
-   * @param {string} restaurantId The ID of the restaurant.
-   * @returns {Promise<Stripe.Checkout.Session>} The created checkout session.
-   */
+/**
+ * Creates a Stripe Checkout session for the given line items and order details.
+ * The session is configured to use the "payment" mode and includes the order ID and restaurant ID as metadata.
+ * The session is also configured to redirect to the order status page on success or cancellation.
+ * @param {Stripe.Checkout.SessionCreateParams.LineItem[]} lineItems The line items for the session.
+ * @param {string} orderId The ID of the order.
+ * @param {number} deliveryPrice The delivery price.
+ * @param {string} restaurantId The restaurant ID.
+ * @returns {Promise<Stripe.Checkout.Session>} The created checkout session.
+ */
 const createSession = async (
   lineItems: Stripe.Checkout.SessionCreateParams.LineItem[],
   orderId: string,
@@ -200,7 +204,7 @@ const createSession = async (
           display_name: "Delivery",
           type: "fixed_amount",
           fixed_amount: {
-            amount: deliveryPrice*100,
+            amount: deliveryPrice * 100,
             currency: "dzd",
           },
         },
