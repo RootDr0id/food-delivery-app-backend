@@ -20,7 +20,7 @@ const getMyOrders = async (req: Request, res: Response) => {
   try {
     const orders = await Order.find({ user: req.userId })
       .populate("restaurant")
-      .populate("user");
+      .populate("user", "name email addressLine1 city country");
 
     res.json(orders);
   } catch (error) {
