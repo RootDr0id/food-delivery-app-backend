@@ -1,4 +1,4 @@
-import { body, validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 
 /**
@@ -83,5 +83,18 @@ export const validateCheckoutSessionRequest = [
     .trim()
     .notEmpty()
     .withMessage("Delivery city is required"),
+  handleValidationErrors,
+];
+
+/**
+ * Validates an order status update without changing the existing status workflow.
+ */
+export const validateOrderStatusRequest = [
+  param("orderId")
+    .isMongoId()
+    .withMessage("Order ID must be a valid MongoDB ID"),
+  body("status")
+    .isIn(["placed", "paid", "inProgress", "outForDelivery", "delivered"])
+    .withMessage("Invalid order status"),
   handleValidationErrors,
 ];
