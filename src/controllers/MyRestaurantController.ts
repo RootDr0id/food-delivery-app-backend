@@ -143,7 +143,7 @@ const updateOrderStatus = async (req: Request, res: Response) => {
 
     const restaurant = await Restaurant.findById(order.restaurant);
     //just extra security to prevent unauthorized users from updating orders from other user's restaaurants.
-    if (restaurant?.user?._id.toString() !== req.userId) {
+    if (restaurant?.user?.toString() !== req.userId) {
       return res.status(401).send();
     }
 
