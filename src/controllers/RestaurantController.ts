@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import Restaurant from "../models/restaurant";
 
+const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\import Restaurant from "../models/restaurant";");
+
 /**
  * Gets a restaurant by its id.
  * @param req - Express request object
@@ -43,11 +46,11 @@ const searchRestaurant = async (req: Request, res: Response) => {
     const searchQuery = (req.query.searchQuery as string) || "";//"london"
     const selectedCuisines = (req.query.selectedCuisines as string) || "";//"Indian, Chinese"
     const sortOption = (req.query.sortOption as string) || "lastUpdated";
-    const page = parseInt(req.query.page as string) || 1;
+    const page = Number(req.query.page ?? 1);
 
     let query: any = {};
 
-    query["city"] = new RegExp(city, "i");// i means case insensitive
+    query["city"] = new RegExp(escapeRegex(city), "i");// i means case insensitive
     const cityCheck = await Restaurant.countDocuments(query);//counts the number of documents that match the query
     if (cityCheck === 0) {
       return res.status(404).json({
@@ -63,13 +66,13 @@ const searchRestaurant = async (req: Request, res: Response) => {
     if (selectedCuisines) {//selectedCuisines = "Indian, Chinese"
       const cuisinesArray = selectedCuisines
         .split(",")//"Indian, Chinese" => ["Indian", "Chinese"]
-        .map((cuisine) => new RegExp(cuisine, "i"));//["Indian", "Chinese"] => [new RegExp("Indian", "i"), new RegExp("Chinese", "i")]
+        .map((cuisine) => new RegExp(escapeRegex(cuisine.trim()), "i"));//["Indian", "Chinese"] => [new RegExp("Indian", "i"), new RegExp("Chinese", "i")]
 
       query["cuisines"] = { $all: cuisinesArray };//query["cuisines"] = { $all: ["Indian", "Chinese"]}
     }
 
     if (searchQuery) {
-      const searchRegex = new RegExp(searchQuery, "i");
+      const searchRegex = new RegExp(escapeRegex(searchQuery), "i");
       query["$or"] = [
         { restaurantName: searchRegex },
         { cuisines: { $in: [searchRegex] } },
