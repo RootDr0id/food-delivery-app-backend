@@ -2,7 +2,10 @@ import express from "express";
 import multer from "multer";
 import MyRestaurantController from "../controllers/MyRestaurantController";
 import { jwtCheck, jwtParse } from "../middleware/auth";
-import { validateMyRestaurantRequest } from "../middleware/validation";
+import {
+  validateMyRestaurantRequest,
+  validateOrderStatusRequest,
+} from "../middleware/validation";
 
 const router = express.Router();
 
@@ -26,6 +29,7 @@ router.patch(// update order status, patch instead of put because it is a partia
   "/order/:orderId/status",
   jwtCheck,
   jwtParse,
+  validateOrderStatusRequest,
   MyRestaurantController.updateOrderStatus
 );
 
@@ -33,10 +37,10 @@ router.get("/", jwtCheck, jwtParse, MyRestaurantController.getMyRestaurant);
 
 router.post(
   "/",
-  upload.single("imageFile"),
-  validateMyRestaurantRequest,
   jwtCheck,
   jwtParse,
+  upload.single("imageFile"),
+  validateMyRestaurantRequest,
   MyRestaurantController.createMyRestaurant
 );
 
