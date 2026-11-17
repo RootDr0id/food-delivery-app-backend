@@ -1,7 +1,10 @@
 import express from "express";
 import { param } from "express-validator";
 import RestaurantController from "../controllers/RestaurantController";
-import { handleValidationErrors } from "../middleware/validation";
+import {
+  handleValidationErrors,
+  validateRestaurantSearchRequest,
+} from "../middleware/validation";
 
 const router = express.Router();
 
@@ -22,7 +25,9 @@ router.get(
     .isString()
     .trim()
     .notEmpty()
-    .withMessage("City must be a non-empty string"),
+    .isLength({ max: 100 })
+    .withMessage("City must be a non-empty string of at most 100 characters"),
+  validateRestaurantSearchRequest,
   handleValidationErrors,
   RestaurantController.searchRestaurant
 );
