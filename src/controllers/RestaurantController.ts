@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Restaurant from "../models/restaurant";
 
 const escapeRegex = (value: string) =>
-  value.split("").map((character) => ".^$*+?()[]{}|\\\\".includes(character) ? "\\\\" + character : character).join("");
+  value.split("").map((character) => ".^$*+?()[]{}|\\".includes(character) ? "\\" + character : character).join("");
 
 /**
  * Gets a restaurant by its id.
