@@ -132,7 +132,7 @@ const createCheckoutSession = async (req: Request, res: Response) => {
     res.json({ url: session.url });
   } catch (error: any) {
     console.log(error);
-    res.status(500).json({ message: error.raw.message });
+    res.status(500).json({ message: "Unable to create checkout session" });
   }
 };
 
@@ -154,6 +154,11 @@ const createLineItems = (
       throw new Error(`Menu item not found: ${cartItem.menuItemId}`);
     }
 
+    const quantity = Number(cartItem.quantity);
+    if (!Number.isSafeInteger(quantity) || quantity < 1) {
+      throw new Error("Cart item quantity must be a positive integer");
+    }
+
     const line_item: Stripe.Checkout.SessionCreateParams.LineItem = {
       price_data: {
         currency: "dzd",
@@ -162,7 +167,7 @@ const createLineItems = (
           name: menuItem.name,
         },
       },
-      quantity: parseInt(cartItem.quantity),
+      quantity,
     };
 
     return line_item;
