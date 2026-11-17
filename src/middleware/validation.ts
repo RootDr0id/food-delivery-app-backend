@@ -1,4 +1,4 @@
-import { body, param, validationResult } from "express-validator";
+import { body, param, query, validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 
 /**
@@ -96,5 +96,31 @@ export const validateOrderStatusRequest = [
   body("status")
     .isIn(["placed", "paid", "inProgress", "outForDelivery", "delivered"])
     .withMessage("Invalid order status"),
+  handleValidationErrors,
+];
+
+/**
+ * Validates restaurant search filters and pagination parameters.
+ */
+export const validateRestaurantSearchRequest = [
+  query("searchQuery")
+    .optional()
+    .isString()
+    .isLength({ max: 100 })
+    .withMessage("Search query must be a string of at most 100 characters"),
+  query("selectedCuisines")
+    .optional()
+    .isString()
+    .isLength({ max: 300 })
+    .withMessage("Selected cuisines must be a string of at most 300 characters"),
+  query("sortOption")
+    .optional()
+    .isString()
+    .matches(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/)
+    .withMessage("Invalid sort option"),
+  query("page")
+    .optional()
+    .isInt({ min: 1, max: 100000 })
+    .withMessage("Page must be a positive integer"),
   handleValidationErrors,
 ];
