@@ -46,10 +46,10 @@ router.post(
 
 router.put(
   "/",
+  jwtCheck,
+  jwtParse,
   upload.single("imageFile"),
   validateMyRestaurantRequest,
-  jwtCheck,
-  jwtParse, 
   MyRestaurantController.updateMyRestaurant
 );
 
