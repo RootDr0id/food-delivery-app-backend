@@ -2,15 +2,9 @@ import { body, validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 
 /**
- * Handles validation errors by checking the result of express-validator's
- * validationResult function. If there are any errors, it returns a 400 response
- * with the errors in the response body. Otherwise, it calls the next function in
- * the middleware chain.
- * @param req - The Express request object.
- * @param res - The Express response object.
- * @param next - The next function in the middleware chain.
+ * Returns a 400 response when request validation fails.
  */
-const handleValidationErrors = async (
+export const handleValidationErrors = (
   req: Request,
   res: Response,
   next: NextFunction
@@ -26,7 +20,7 @@ export const validateMyUserRequest = [
   body("name").isString().notEmpty().withMessage("Name must be a string"),
   body("addressLine1")
     .isString()
-    .notEmpty()   
+    .notEmpty()
     .withMessage("AddressLine1 must be a string"),
   body("city").isString().notEmpty().withMessage("City must be a string"),
   body("country").isString().notEmpty().withMessage("Country must be a string"),
@@ -42,7 +36,7 @@ export const validateMyRestaurantRequest = [
     .withMessage("Delivery price must be a positive number"),
   body("estimatedDeliveryTime")
     .isInt({ min: 0 })
-    .withMessage("Estimated delivery time must be a postivie integar"),
+    .withMessage("Estimated delivery time must be a positive integer"),
   body("cuisines")
     .isArray()
     .withMessage("Cuisines must be an array")
@@ -53,6 +47,6 @@ export const validateMyRestaurantRequest = [
   body("menuItems.*.name").notEmpty().withMessage("Menu item name is required"),
   body("menuItems.*.price")
     .isFloat({ min: 0 })
-    .withMessage("Menu item price is required and must be a postive number"),
+    .withMessage("Menu item price is required and must be a positive number"),
   handleValidationErrors,
 ];
