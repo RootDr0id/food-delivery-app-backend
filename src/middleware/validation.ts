@@ -50,3 +50,38 @@ export const validateMyRestaurantRequest = [
     .withMessage("Menu item price is required and must be a positive number"),
   handleValidationErrors,
 ];
+
+export const validateCheckoutSessionRequest = [
+  body("restaurantId")
+    .isMongoId()
+    .withMessage("A valid restaurant ID is required"),
+  body("cartItems")
+    .isArray({ min: 1 })
+    .withMessage("Cart must contain at least one item"),
+  body("cartItems.*.menuItemId")
+    .isMongoId()
+    .withMessage("Each cart item must have a valid menu item ID"),
+  body("cartItems.*.quantity")
+    .isInt({ min: 1 })
+    .withMessage("Each item quantity must be a positive integer"),
+  body("deliveryDetails").isObject().withMessage("Delivery details are required"),
+  body("deliveryDetails.email")
+    .isEmail()
+    .withMessage("A valid delivery email is required"),
+  body("deliveryDetails.name")
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage("Delivery name is required"),
+  body("deliveryDetails.addressLine1")
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage("Delivery address is required"),
+  body("deliveryDetails.city")
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage("Delivery city is required"),
+  handleValidationErrors,
+];
